@@ -4,15 +4,19 @@ import java.util.List;
 import javax.media.j3d.Transform3D;
 import javax.vecmath.Point3f;
 
+import floor.Geometry;
+
 import processing.core.PVector;
 
 
 public class Floor {
 	
+	private static final double EPS = 0.2;
 	private PVector normal, point;
 	private List<Point3f> margins;
 	public static final float EPSILON = (float) 0.5; 
 	public static final double ANGLE = 3;
+	public static final double COMPRESS_DISTANCE = 5;
 	
 
 	public Floor(PVector normal, PVector point) {
@@ -63,6 +67,7 @@ public void setFloorMargins(List<Point3f> planPoints) {
 		
 		
 		this.margins =  bestMargins;
+		
 		
 				
 	}
@@ -171,6 +176,102 @@ public boolean inPlan(PVector M) {
 
 	public void setPoint(PVector point) {
 		this.point = point;
+	}
+
+
+	/**
+	 * Adjust margins to fit camera view.
+	 * 
+	 * @param projectedPoints
+	 * @param maxWidth
+	 * @param maxHeight
+	 */
+	public void adjustMargins(List<PVector> projectedPoints, int maxWidth,
+			int maxHeight) {
+		PVector point,prev,next;
+		int size = projectedPoints.size(), prevIndex, nextIndex;
+		
+		
+		for(int index=0;index<size;index++){
+			
+			nextIndex = nextIndex(size, index);
+			prevIndex = previousIndex(size, index);
+			
+			next = projectedPoints.get(nextIndex);
+			prev = projectedPoints.get(prevIndex);
+			
+			point = projectedPoints.get(index);
+			
+			checkPoint(projectedPoints,size, index, point.x < 0,next.x < prev.x);
+			checkPoint(projectedPoints,size, index, point.y < 0,next.y < prev.y);
+			checkPoint(projectedPoints,size, index, point.x >= maxWidth, next.x > prev.x);
+			checkPoint(projectedPoints,size, index, point.y >=  maxHeight,next.y > prev.y);
+			
+			
+		}
+		
+	}
+
+
+	private void checkPoint(List<PVector> projectedPoints, int size, int index, boolean condition1, boolean condition2) {
+		
+		PVector point, prev, next;
+		int prevIndex,nextIndex;
+		
+		point = projectedPoints.get(index);
+		if(condition1){
+			
+			nextIndex = nextIndex(size, index);
+			prevIndex = previousIndex(size, index);
+			next = projectedPoints.get(nextIndex);
+			prev = projectedPoints.get(prevIndex);
+			
+			if(condition2){
+				moveLine(index,nextIndex,prevIndex,nextIndex(size, nextIndex));
+			}
+			else{
+				moveLine(index,prevIndex,nextIndex,previousIndex(size, prevIndex));
+			}
+		}
+	}
+
+
+	private void moveLine(int p1, int p2, int m1, int m2) {
+		
+		Point3f P1 = margins.get(p1), P2 = margins.get(p2),
+				M1 = margins.get(m1), M2 = margins.get(m2),
+				newP1,newP2;
+		newP1 = getCloserPoint(P1, M1);
+		newP2 = getCloserPoint(P2, M2);
+		
+		margins.set(p1, newP1);
+		margins.set(p2, newP2);
+		
+	}
+
+
+	private Point3f getCloserPoint(Point3f P1, Point3f M1) {
+		Point3f newP1;
+		double k,  P1M1 = Geometry.distance(P1, M1);
+		k = COMPRESS_DISTANCE/P1M1;
+		newP1 = Geometry.getPointOnLine(P1,M1,k);
+		if((k + Geometry.distance(newP1, M1)/P1M1 - 1) > EPS){
+			k = -k;
+			newP1 = Geometry.getPointOnLine(P1,M1,k);
+			
+		}
+		
+		return newP1;
+	}
+
+
+	private int previousIndex(int num, int i) {
+		return i==0?(num-1):(i-1);
+	}
+
+
+	private int nextIndex(int num, int i) {
+		return (i+1)%num;
 	}
 	
 	

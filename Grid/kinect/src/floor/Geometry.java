@@ -9,6 +9,10 @@ import javax.vecmath.Point3f;
  * To change this template use File | Settings | File Templates.
  */
 public class Geometry {
+	
+	public static double distance(Point3f p1, Point3f p2){
+		return Math.sqrt(Math.pow(p1.x-p2.x, 2)+ Math.pow(p1.y - p2.y, 2) + Math.pow(p1.z - p2.z,2));
+	}
 
     public static float dotProduct(Point3f p1, Point3f p2){
         return p1.x*p2.x + p1.y*p2.y + p1.z*p2.z;
@@ -106,6 +110,15 @@ public class Geometry {
         //System.out.println(onLine(new Point3f(11,11,1),new Point3f(1,1,1),new Point3f(2,2,2)));
 
     }
+
+	public static Point3f getPointOnLine(Point3f p1, Point3f p2, double raport) {
+		Point3f point =  new Point3f();
+		point.x = (float) (raport*(p2.x - p1.x)+p1.x);
+		point.y = (float) (raport*(p2.y - p1.y)+p1.y);
+		point.z = (float) (raport*(p2.z - p1.z)+p1.z);
+		
+		return point;
+	}
 
 
 }
