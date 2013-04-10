@@ -15,7 +15,7 @@ public class Floor {
 	private PVector normal, point;
 	private List<Point3f> margins;
 	public static final float EPSILON = (float) 0.5; 
-	public static final double ANGLE = 3;
+	public static final double ANGLE = 30;
 	public static final double COMPRESS_DISTANCE = 5;
 	
 

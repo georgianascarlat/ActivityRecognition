@@ -15,6 +15,8 @@ package position;
  * ----------------------------------------------------------------------------
  */
 
+import java.awt.Color;
+
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.core.PMatrix3D;
@@ -151,6 +153,7 @@ public class UserCoordsys extends PApplet {
 
 		// draw the skeleton if it's available
 		int i;
+		Color c;
 		int userCount = context.getNumberOfUsers();
 		for (i = 1; i <= userCount; i++) {
 			// check if the skeleton is being tracked
@@ -158,6 +161,29 @@ public class UserCoordsys extends PApplet {
 				drawSkeleton(i); // draw the skeleton
 			}
 		}
+		
+		PVector[] pointsMap = context.depthMapRealWorld();
+		PImage image = context.rgbImage();
+		int pixels[] = image.pixels;
+		PVector proj = new PVector(), p = new PVector();
+		
+		
+		for(int line = 0;line< context.rgbHeight();line++){
+			for(int column = 0;column<context.rgbWidth();column++){
+				i = line*context.rgbWidth() + column;
+				c = new Color(pixels[i]);
+				if(c.getBlue() < 25 && c.getRed() < 25 && c.getGreen() < 25){
+					p = pointsMap[i];
+					context.convertRealWorldToProjective(p, proj);
+					stroke(255, 0, 0);
+					point(proj.x, proj.y);
+				}
+			}
+		}
+		
+		
+		
+
 	}
 
 	// draw the skeleton with the selected joints

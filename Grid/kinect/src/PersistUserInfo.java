@@ -239,7 +239,7 @@ public class PersistUserInfo extends PApplet {
 				break;
 			
 			
-			floor.adjustMargins(projectedPoints,100,context.depthWidth(),0, context.depthHeight());
+			floor.adjustMargins(projectedPoints,120,context.depthWidth(),0, context.depthHeight());
 			
 			
 			k++;
