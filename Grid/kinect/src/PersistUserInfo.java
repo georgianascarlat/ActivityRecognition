@@ -47,7 +47,7 @@ public class PersistUserInfo extends PApplet {
 	private String fileName = System.getProperty("user.dir")+"/../data/recorded/test14.oni";
 	private String rootDirectory = System.getProperty("user.dir")+"/../data/recorded/points/";
 
-	private Floor floor;
+	private Floor floor = null;
 	private floor.Floor the_floor = null;
 	int heigthOffset = 0, widthOffset = 0;
 	private int widthParts = 6;
@@ -207,27 +207,31 @@ public class PersistUserInfo extends PApplet {
 		}
 
 		// get the floor plane
+		if(floor == null && incrementer.counter > 0){
+			context.getSceneFloor(floorPoint, floorNormal);
+			floor = new Floor(floorNormal, floorPoint);
 
-		context.getSceneFloor(floorPoint, floorNormal);
-		floor = new Floor(floorNormal, floorPoint);
+			PVector[] pointsMap = context.depthMapRealWorld();
+			List<Point3f> planPoints = new ArrayList<Point3f>();
+			PVector proj = new PVector();
+			for (i = 0; i < pointsMap.length; i++) {
+				if (floor.inPlan(pointsMap[i])) {
+					proj = pointsMap[i];
+					planPoints.add(new Point3f(proj.x, proj.y, proj.z));
 
-		PVector[] pointsMap = context.depthMapRealWorld();
-		List<Point3f> planPoints = new ArrayList<Point3f>();
-		PVector proj = new PVector();
-		for (i = 0; i < pointsMap.length; i++) {
-			if (floor.inPlan(pointsMap[i])) {
-				proj = pointsMap[i];
-				planPoints.add(new Point3f(proj.x, proj.y, proj.z));
-
+				}
 			}
+
+			// obtain floor margins from plan points
+			floor.setFloorMargins(planPoints);
+		
+			// adjust floor margins in order to fit into the camera image
+			fitFloorMargins();
 		}
-
-		// obtain floor margins from plan points
-		floor.setFloorMargins(planPoints);
-
+		
 		// showFloorPoints(planPoints, proj);
-		fitFloorMargins();
-		showFloorBounds();
+		if(floor != null)
+			showFloorBounds();
 
 	}
 
@@ -368,7 +372,7 @@ public class PersistUserInfo extends PApplet {
 				break;
 			
 			
-			floor.adjustMargins(projectedPoints,context.depthWidth(), context.depthHeight());
+			floor.adjustMargins(projectedPoints,100,context.depthWidth(),0, context.depthHeight());
 			
 			
 			if(k == MAX_ITERATIONS)

@@ -186,8 +186,9 @@ public boolean inPlan(PVector M) {
 	 * @param maxWidth
 	 * @param maxHeight
 	 */
-	public void adjustMargins(List<PVector> projectedPoints, int maxWidth,
-			int maxHeight) {
+	public void adjustMargins(List<PVector> projectedPoints,
+			int minWidth, int maxWidth,
+			int minHeight, int maxHeight) {
 		PVector point,prev,next;
 		int size = projectedPoints.size(), prevIndex, nextIndex;
 		
@@ -202,8 +203,8 @@ public boolean inPlan(PVector M) {
 			
 			point = projectedPoints.get(index);
 			
-			checkPoint(projectedPoints,size, index, point.x < 0,next.x < prev.x);
-			checkPoint(projectedPoints,size, index, point.y < 0,next.y < prev.y);
+			checkPoint(projectedPoints,size, index, point.x < minWidth,next.x < prev.x);
+			checkPoint(projectedPoints,size, index, point.y < minHeight,next.y < prev.y);
 			checkPoint(projectedPoints,size, index, point.x >= maxWidth, next.x > prev.x);
 			checkPoint(projectedPoints,size, index, point.y >=  maxHeight,next.y > prev.y);
 			
